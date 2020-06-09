@@ -12,10 +12,23 @@ class ListaEnsaio:
 
     def vou(self, nome, instrumento):
         try:
-            linha = [nome, instrumento]
-            if linha not in self.lista:
-                self.lista.append(linha)
-            self.num_pessoas += 1
+            ritmista = {'nome': nome, 'instrumento': instrumento}
+
+            print(f'Pesquisando {ritmista} em {self.lista}')
+            if len(self.lista) == 0:
+                self.lista.append(ritmista)
+                self.num_pessoas += 1
+                print(f'{ritmista["nome"]} adicionado')
+            else:
+                for linha in self.lista:
+                    if ritmista['nome'] in linha['nome']:
+                        print(f'{ritmista["nome"]} já está na lista')
+                        break
+                    else:
+                        self.lista.append(ritmista)
+                        self.num_pessoas += 1
+                        print(f'{ritmista["nome"]} adicionado')
+
         except Exception:
             pass
         return self.to_string()
@@ -23,11 +36,10 @@ class ListaEnsaio:
     def naovou(self, nome):
         try:
             for pos, linha in enumerate(self.lista):
-                if nome in linha:
-                    if len(linha) == 3:     # se a pessoa está como "EMOJI nome - instrumento" na lista
-                        self.lista[pos].pop(0)
+                if nome == linha['nome']:
+                    self.lista[pos]["emoji"] = '\U0000274C'
                     self.num_pessoas -= 1
-                    self.lista[pos].insert(0, '\U0000274C')
+                    break
         except Exception:
             pass
         return self.to_string()
@@ -35,10 +47,9 @@ class ListaEnsaio:
     def atraso(self, nome):
         try:
             for pos, linha in enumerate(self.lista):
-                if nome in linha:
-                    if len(linha) == 3:     # se a pessoa está como "EMOJI nome - instrumento" na lista
-                        self.lista[pos].pop(0)
-                    self.lista[pos].insert(0, '\U0001F552')
+                if nome == linha['nome']:
+                    self.lista[pos]["emoji"] = '\U0001F552'
+                    break
         except Exception:
             pass
         return self.to_string()
@@ -46,10 +57,9 @@ class ListaEnsaio:
     def estou(self, nome):
         try:
             for pos, linha in enumerate(self.lista):
-                if nome in linha:
-                    if len(linha) == 3:     # se a pessoa está como "EMOJI nome - instrumento" na lista
-                        self.lista[pos].pop(0)
-                    self.lista[pos].insert(0, '\U00002705')
+                if nome == linha['nome']:
+                    self.lista[pos]['emoji'] = '\U00002705'
+                    break
         except Exception:
             pass
         return self.to_string()
@@ -58,7 +68,7 @@ class ListaEnsaio:
         texto = self.cabecalho
         for linha in self.lista:
             if len(linha) == 2:
-                texto += f'{linha[0]} - {linha[1]}\n'
+                texto += f'{linha["nome"]} - {linha["instrumento"]}\n'
             if len(linha) == 3:
-                texto += f'{linha[0]} {linha[1]} - {linha[2]}\n'
+                texto += f'{linha["emoji"]} {linha["nome"]} - {linha["instrumento"]}\n'
         return texto
