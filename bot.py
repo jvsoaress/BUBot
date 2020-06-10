@@ -1,7 +1,7 @@
 import telebot
 import configparser
 from listaensaio import ListaEnsaio
-from datetime import datetime
+from datetime import datetime, timedelta
 from buttons import Buttons
 
 config = configparser.ConfigParser()
@@ -25,19 +25,23 @@ def send_welcome(msg):
 
 @bot.message_handler(commands=['ensaio'])
 def novo_ensaio(msg):
-    descricao = msg.text[8:]
-    hoje = datetime.now()
-    data = f'{hoje.day:0>2}/{hoje.month:0>2}'
-
     global lista_ensaio
-    lista_ensaio = ListaEnsaio(descricao, data)
+    if not isinstance(lista_ensaio, ListaEnsaio):
+        descricao = msg.text[8:]
+        hoje = datetime.now()
+        data = f'{hoje.day:0>2}/{hoje.month:0>2}'
 
-    bot.send_message(chat_id=msg.chat.id,
-                     text=f'{lista_ensaio.cabecalho}\n',
-                     reply_markup=respostas,
-                     parse_mode='HTML')
+        lista_ensaio = ListaEnsaio(descricao, data)
 
-    print('Novo ensaio criado')
+        bot.send_message(chat_id=msg.chat.id,
+                         text=f'{lista_ensaio.cabecalho}\n',
+                         reply_markup=respostas,
+                         parse_mode='HTML')
+
+        print(f'Novo ensaio criado em {hoje}')
+    else:
+        bot.send_message(chat_id=msg.chat.id,
+                         text='Lista já existente. Para excluir uma lista, digite /deletar')
 
 
 @bot.callback_query_handler(func=lambda call: call.data in ['vou', 'naovou', 'atraso', 'estou'])
@@ -83,6 +87,32 @@ def send_list_infos(msg):
     print(f'{msg.from_user.first_name} pediu informações da lista')
     infos = lista_ensaio.infos()
     bot.reply_to(message=msg, text=infos, parse_mode='HTML')
+
+
+@bot.message_handler(commands=['amanha', 'ontem'])
+def change_date(msg):
+    if msg.text == '/amanha':
+        nova_data = timedelta(days=1)
+    else:
+        nova_data = timedelta(days=-1)
+    lista_ensaio.data = lista_ensaio.data + nova_data
+    print(lista_ensaio.cabecalho)
+
+
+@bot.message_handler(commands=['deletar'])
+def delete_list(msg):
+    global lista_ensaio
+    if lista_ensaio is not None:
+        try:
+            message_id = msg.reply_to_message.message_id
+        except AttributeError:
+            bot.send_message(chat_id=msg.chat.id, text='Responda à mensagem contendo a lista que deseja deletar')
+        else:
+            bot.delete_message(chat_id=msg.chat.id, message_id=message_id)
+            bot.send_message(chat_id=msg.chat.id, text='Lista de ensaio deletada')
+            lista_ensaio = None
+    else:
+        bot.send_message(chat_id=msg.chat.id, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
 
 
 bot.polling(timeout=60, none_stop=True)
