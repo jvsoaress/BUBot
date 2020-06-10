@@ -28,8 +28,7 @@ def novo_ensaio(msg):
     global lista_ensaio
     if not isinstance(lista_ensaio, ListaEnsaio):
         descricao = msg.text[8:]
-        hoje = datetime.now()
-        data = f'{hoje.day:0>2}/{hoje.month:0>2}'
+        data = datetime.now()
 
         lista_ensaio = ListaEnsaio(descricao, data)
 
@@ -38,7 +37,7 @@ def novo_ensaio(msg):
                          reply_markup=respostas,
                          parse_mode='HTML')
 
-        print(f'Novo ensaio criado em {hoje}')
+        print(f'Novo ensaio criado em {data}')
     else:
         bot.send_message(chat_id=msg.chat.id,
                          text='Lista já existente. Para excluir uma lista, digite /deletar')
@@ -84,35 +83,51 @@ def set_instrument(call):
 
 @bot.message_handler(commands=['infos'])
 def send_list_infos(msg):
-    print(f'{msg.from_user.first_name} pediu informações da lista')
-    infos = lista_ensaio.infos()
-    bot.reply_to(message=msg, text=infos, parse_mode='HTML')
+    if isinstance(lista_ensaio, ListaEnsaio):
+        print(f'{msg.from_user.first_name} pediu informações da lista')
+        infos = lista_ensaio.infos()
+        bot.reply_to(message=msg, text=infos, parse_mode='HTML')
+    else:
+        bot.reply_to(message=msg, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
 
 
 @bot.message_handler(commands=['amanha', 'ontem'])
 def change_date(msg):
-    if msg.text == '/amanha':
-        nova_data = timedelta(days=1)
-    else:
-        nova_data = timedelta(days=-1)
-    lista_ensaio.data = lista_ensaio.data + nova_data
-    print(lista_ensaio.cabecalho)
+    global lista_ensaio
+    if lista_ensaio:
+        try:
+            message_id = msg.reply_to_message.message_id
+        except AttributeError:
+            bot.reply_to(message=msg, text='Responda à mensagem contendo a lista que deseja alterar a data')
+        else:
+            if msg.text == '/amanha':
+                nova_data = timedelta(days=1)
+            else:
+                nova_data = timedelta(days=-1)
+            lista_ensaio.data += nova_data
+            texto = lista_ensaio.to_string()
+            bot.edit_message_text(chat_id=msg.chat.id,
+                                  message_id=message_id,
+                                  text=texto,
+                                  parse_mode='HTML',
+                                  reply_markup=respostas)
+            print(f'{msg.from_user.first_name} alterou a data do ensaio')
 
 
 @bot.message_handler(commands=['deletar'])
 def delete_list(msg):
     global lista_ensaio
-    if lista_ensaio is not None:
+    if lista_ensaio:
         try:
             message_id = msg.reply_to_message.message_id
         except AttributeError:
-            bot.send_message(chat_id=msg.chat.id, text='Responda à mensagem contendo a lista que deseja deletar')
+            bot.reply_to(message=msg, text='Responda à mensagem contendo a lista que deseja deletar')
         else:
             bot.delete_message(chat_id=msg.chat.id, message_id=message_id)
-            bot.send_message(chat_id=msg.chat.id, text='Lista de ensaio deletada')
+            bot.reply_to(message=msg, text='Lista de ensaio deletada')
             lista_ensaio = None
     else:
-        bot.send_message(chat_id=msg.chat.id, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
+        bot.reply_to(message=msg, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
 
 
 bot.polling(timeout=60, none_stop=True)

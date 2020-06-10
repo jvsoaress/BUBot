@@ -18,8 +18,12 @@ class ListaEnsaio:
 
     @property
     def cabecalho(self):
-        return f'<strong>ENSAIO {self.data} {self.descricao}</strong>\n' \
+        return f'\U0001F40D <strong>ENSAIO {self.fmt_data} {self.descricao}</strong>\n' \
                f'<em>{self.num_pessoas} pessoa(s) na lista</em>\n\n'
+
+    @property
+    def fmt_data(self):
+        return self.data.strftime('%d/%m')
 
     def vou(self, nome, instrumento):
         try:
@@ -87,7 +91,7 @@ class ListaEnsaio:
         return texto
 
     def infos(self):
-        infos = ''
+        infos = self.cabecalho
         for instrumento, qtd in self.instrumentos.items():
             infos += f'<code>{instrumento:<13}{qtd}</code>\n'
         return infos
