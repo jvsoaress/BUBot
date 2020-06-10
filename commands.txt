@@ -1,0 +1,2 @@
+ensaio - Cria uma nova lista de ensaio
+infos - Recebe informações de uma lista de ensaio
