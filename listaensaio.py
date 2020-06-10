@@ -52,10 +52,11 @@ class ListaEnsaio:
 
     def naovou(self, nome):
         try:
-            for pos, linha in enumerate(self.lista):
+            for linha in self.lista:
                 if nome == linha['nome']:
-                    self.lista[pos]["emoji"] = '\U0000274C'
+                    self.lista.remove(linha)
                     self.num_pessoas -= 1
+                    print(f'{nome} saiu da lista')
                     break
         except Exception:
             pass
@@ -63,9 +64,9 @@ class ListaEnsaio:
 
     def atraso(self, nome):
         try:
-            for pos, linha in enumerate(self.lista):
+            for linha in self.lista:
                 if nome == linha['nome']:
-                    self.lista[pos]["emoji"] = '\U0001F552'
+                    linha["emoji"] = '\U0001F552'
                     break
         except Exception:
             pass
@@ -73,22 +74,26 @@ class ListaEnsaio:
 
     def estou(self, nome):
         try:
-            for pos, linha in enumerate(self.lista):
+            for linha in self.lista:
                 if nome == linha['nome']:
-                    self.lista[pos]['emoji'] = '\U00002705'
+                    linha['emoji'] = '\U00002705'
                     break
         except Exception:
             pass
         return self.to_string()
 
     def to_string(self):
-        texto = self.cabecalho
-        for linha in self.lista:
-            if len(linha) == 2:
-                texto += f'{linha["nome"]} - {linha["instrumento"]}\n'
-            if len(linha) == 3:
-                texto += f'{linha["emoji"]} {linha["nome"]} - {linha["instrumento"]}\n'
-        return texto
+        try:
+            texto = self.cabecalho
+            for linha in self.lista:
+                if len(linha) == 2:
+                    texto += f'{linha["nome"]} - {linha["instrumento"]}\n'
+                if len(linha) == 3:
+                    texto += f'{linha["emoji"]} {linha["nome"]} - {linha["instrumento"]}\n'
+        except Exception:
+            pass
+        else:
+            return texto
 
     def infos(self):
         infos = self.cabecalho
