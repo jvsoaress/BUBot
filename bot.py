@@ -37,6 +37,8 @@ def novo_ensaio(msg):
                      reply_markup=respostas,
                      parse_mode='HTML')
 
+    print('Novo ensaio criado')
+
 
 @bot.callback_query_handler(func=lambda call: call.data in ['vou', 'naovou', 'atraso', 'estou'])
 def update_list(call):
@@ -52,13 +54,10 @@ def update_list(call):
     else:
         if call.data == 'naovou':
             texto = lista_ensaio.naovou(nome)
-
         elif call.data == 'atraso':
             texto = lista_ensaio.atraso(nome)
-
         elif call.data == 'estou':
             texto = lista_ensaio.estou(nome)
-
         bot.edit_message_text(text=texto,
                               message_id=call.message.message_id,
                               chat_id=call.message.chat.id,
@@ -66,11 +65,11 @@ def update_list(call):
                               reply_markup=respostas)
 
 
-@bot.callback_query_handler(func=lambda call: call.data in ['caixa', 'ripa', 'agogo', 'chocalho', 'xequere',
+@bot.callback_query_handler(func=lambda call: call.data in ['caixa', 'ripa', 'agogô', 'chocalho', 'xequerê',
                                                             'primeira', 'segunda', 'terceira', 'tamborim'])
 def set_instrument(call):
     nome = call.from_user.username
-    instrumento = call.data
+    instrumento = call.data.title()
     texto = lista_ensaio.vou(nome, instrumento)
     bot.edit_message_text(text=texto,
                           message_id=call.message.message_id,
@@ -79,4 +78,11 @@ def set_instrument(call):
                           reply_markup=respostas)
 
 
-bot.polling(timeout=20, none_stop=True)
+@bot.message_handler(commands=['infos'])
+def send_list_infos(msg):
+    print(f'{msg.from_user.first_name} pediu informações da lista')
+    infos = lista_ensaio.infos()
+    bot.reply_to(message=msg, text=infos, parse_mode='HTML')
+
+
+bot.polling(timeout=60, none_stop=True)

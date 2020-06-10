@@ -4,6 +4,17 @@ class ListaEnsaio:
         self.descricao = descricao
         self.data = data
         self.num_pessoas = 0
+        self.instrumentos = {
+            'Caixa': 0,
+            'Ripa': 0,
+            'Primeira': 0,
+            'Segunda': 0,
+            'Terceira': 0,
+            'Chocalho': 0,
+            'Xequerê': 0,
+            'Agogô': 0,
+            'Tamborim': 0
+        }
 
     @property
     def cabecalho(self):
@@ -18,6 +29,7 @@ class ListaEnsaio:
             if len(self.lista) == 0:
                 self.lista.append(ritmista)
                 self.num_pessoas += 1
+                self.instrumentos[instrumento] += 1
                 print(f'{ritmista["nome"]} adicionado')
             else:
                 for linha in self.lista:
@@ -27,8 +39,9 @@ class ListaEnsaio:
                     else:
                         self.lista.append(ritmista)
                         self.num_pessoas += 1
+                        self.instrumentos[instrumento] += 1
                         print(f'{ritmista["nome"]} adicionado')
-
+                        break
         except Exception:
             pass
         return self.to_string()
@@ -72,3 +85,9 @@ class ListaEnsaio:
             if len(linha) == 3:
                 texto += f'{linha["emoji"]} {linha["nome"]} - {linha["instrumento"]}\n'
         return texto
+
+    def infos(self):
+        infos = ''
+        for instrumento, qtd in self.instrumentos.items():
+            infos += f'<code>{instrumento:<13}{qtd}</code>\n'
+        return infos

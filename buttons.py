@@ -17,6 +17,6 @@ class Buttons:
     ripa = t.InlineKeyboardButton(text='Ripa', callback_data='ripa')
     tamborim = t.InlineKeyboardButton(text='Tamborim', callback_data='tamborim')
     chocalho = t.InlineKeyboardButton(text='Chocalho', callback_data='chocalho')
-    agogo = t.InlineKeyboardButton(text='Agogô', callback_data='agogo')
-    xequere = t.InlineKeyboardButton(text='Xequerê', callback_data='xequere')
+    agogo = t.InlineKeyboardButton(text='Agogô', callback_data='agogô')
+    xequere = t.InlineKeyboardButton(text='Xequerê', callback_data='xequerê')
     instrumentos.add(caixa, primeira, segunda, terceira, ripa, tamborim, chocalho, agogo, xequere)
