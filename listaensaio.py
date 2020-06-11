@@ -56,6 +56,7 @@ class ListaEnsaio:
                 if nome == linha['nome']:
                     self.lista.remove(linha)
                     self.num_pessoas -= 1
+                    self.instrumentos[linha['instrumento']] -= 1
                     print(f'{nome} saiu da lista')
                     break
         except Exception:
