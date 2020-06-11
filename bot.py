@@ -2,6 +2,7 @@ import telebot
 import configparser
 from listaensaio import ListaEnsaio
 from datetime import datetime, timedelta
+from pytz import timezone
 from buttons import Buttons
 
 config = configparser.ConfigParser()
@@ -28,7 +29,7 @@ def novo_ensaio(msg):
     global lista_ensaio
     if not isinstance(lista_ensaio, ListaEnsaio):
         descricao = msg.text[8:]
-        data = datetime.now()
+        data = datetime.now(tz=timezone('Brazil/East'))
 
         lista_ensaio = ListaEnsaio(descricao, data)
 
