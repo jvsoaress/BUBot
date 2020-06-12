@@ -31,8 +31,14 @@ def list_exists(msg):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(msg):
-    bot.send_message(chat_id=msg.chat.id, text='Para criar um novo ensaio, envie /ensaio seguido de uma descrição.\n\n'
-                                               '<code>/ensaio Bixos 2021</code>', parse_mode='HTML')
+    bot.send_message(chat_id=msg.chat.id, text='• Para criar uma lista de ensaio, envie /ensaio seguido de uma '
+                                               'descrição. Preencha a lista apertando os botões ✌️\n\n'
+                                               '• Se você já está no local do ensaio, marque seu nome com ✅ Estou\n\n'
+                                               '• Não é possível criar mais de uma lista de ensaio no mesmo grupo, '
+                                               'então apague a lista existente com /limpar e crie uma nova\n\n'
+                                               '• Veja a quantidade de cada instrumento na lista enviando /infos 🥁\n\n'
+                                               '• Mude o dia do ensaio com /amanha ou /ontem, respondendo à mensagem'
+                                               ' que contém a lista ↪️')
 
 
 @bot.message_handler(commands=['ensaio'])
