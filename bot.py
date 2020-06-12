@@ -15,7 +15,23 @@ bot = telebot.TeleBot(TOKEN)
 respostas = Buttons.resposta
 instrumentos = Buttons.instrumentos
 
-lista_ensaio = None
+listas_de_ensaio = dict()
+
+
+# checa se a lista existe
+def list_exists(msg):
+    try:
+        listas_de_ensaio[msg.chat.id]
+    except KeyError:
+        bot.reply_to(message=msg, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
+        return False
+    else:
+        return True
+
+
+@bot.message_handler(commands=['listas'])
+def send_lists(msg):
+    print(listas_de_ensaio)
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -37,16 +53,18 @@ def novo_ensaio(msg):
             chatlist.write(str(chat_id) + '\n')
             print(f'Novo Chat ID adicionado: {chat_id}')
 
-    global lista_ensaio
+    global listas_de_ensaio
     # se não houver uma lista criada, crie uma
-    if not lista_ensaio:
+    if chat_id not in listas_de_ensaio:
         descricao = msg.text[8:]
         data = datetime.now(tz=timezone('Brazil/East'))
 
-        lista_ensaio = ListaEnsaio(chat_id, descricao, data)
+        # adiciona um objeto de ListaEnsaio ao dicionário de listas de ensaio
+        nova_lista = ListaEnsaio(chat_id, descricao, data)
+        listas_de_ensaio[chat_id] = nova_lista
 
         bot.send_message(chat_id=chat_id,
-                         text=f'{lista_ensaio.cabecalho}\n',
+                         text=f'{nova_lista.cabecalho}\n',
                          reply_markup=respostas,
                          parse_mode='HTML')
 
@@ -58,32 +76,35 @@ def novo_ensaio(msg):
 
 @bot.callback_query_handler(func=lambda call: call.data in ['vou', 'naovou', 'atraso', 'estou'])
 def update_list(call):
-    if call.from_user.username is not None:
-        nome = call.from_user.username
-    else:
-        nome = call.from_user.first_name
+    if list_exists(call.message):
+        lista_ensaio = listas_de_ensaio[call.message.chat.id]
+        if call.from_user.username is not None:
+            nome = call.from_user.username
+        else:
+            nome = call.from_user.first_name
 
-    if call.data == 'vou':
-        bot.edit_message_reply_markup(message_id=call.message.message_id,
-                                      chat_id=call.message.chat.id,
-                                      reply_markup=instrumentos)
-    else:
-        if call.data == 'naovou':
-            texto = lista_ensaio.naovou(nome)
-        elif call.data == 'atraso':
-            texto = lista_ensaio.atraso(nome)
-        elif call.data == 'estou':
-            texto = lista_ensaio.estou(nome)
-        bot.edit_message_text(text=texto,
-                              message_id=call.message.message_id,
-                              chat_id=call.message.chat.id,
-                              parse_mode='HTML',
-                              reply_markup=respostas)
+        if call.data == 'vou':
+            bot.edit_message_reply_markup(message_id=call.message.message_id,
+                                          chat_id=call.message.chat.id,
+                                          reply_markup=instrumentos)
+        else:
+            if call.data == 'naovou':
+                texto = lista_ensaio.naovou(nome)
+            elif call.data == 'atraso':
+                texto = lista_ensaio.atraso(nome)
+            elif call.data == 'estou':
+                texto = lista_ensaio.estou(nome)
+            bot.edit_message_text(text=texto,
+                                  message_id=call.message.message_id,
+                                  chat_id=call.message.chat.id,
+                                  parse_mode='HTML',
+                                  reply_markup=respostas)
 
 
 @bot.callback_query_handler(func=lambda call: call.data in ['caixa', 'ripa', 'agogô', 'chocalho', 'xequerê',
                                                             'primeira', 'segunda', 'terceira', 'tamborim'])
 def set_instrument(call):
+    lista_ensaio = listas_de_ensaio[call.message.chat.id]
     nome = call.from_user.username
     instrumento = call.data.title()
     texto = lista_ensaio.vou(nome, instrumento)
@@ -96,18 +117,17 @@ def set_instrument(call):
 
 @bot.message_handler(commands=['infos'])
 def send_list_infos(msg):
-    if lista_ensaio:
+    if list_exists(msg):
+        lista_ensaio = listas_de_ensaio[msg.chat.id]
         print(f'{msg.from_user.first_name} pediu informações da lista')
         infos = lista_ensaio.infos()
         bot.reply_to(message=msg, text=infos, parse_mode='HTML')
-    else:
-        bot.reply_to(message=msg, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
 
 
 @bot.message_handler(commands=['amanha', 'ontem'])
 def change_date(msg):
-    global lista_ensaio
-    if lista_ensaio:
+    if list_exists(msg):
+        lista_ensaio = listas_de_ensaio[msg.chat.id]
         try:
             message_id = msg.reply_to_message.message_id
         except AttributeError:
@@ -129,13 +149,11 @@ def change_date(msg):
 
 @bot.message_handler(commands=['limpar'])
 def delete_lists(msg):
-    global lista_ensaio
-    if lista_ensaio:
-        print(f'A lista de ensaio criada em {lista_ensaio.data} foi deletada')
-        lista_ensaio = None
+    if list_exists(msg):
+        lista_ensaio = listas_de_ensaio[msg.chat.id]
+        listas_de_ensaio.__delitem__(msg.chat.id)
+        print(f'Lista deletada (Data: {lista_ensaio.data} | Chat ID: {msg.chat.id})')
         bot.reply_to(message=msg, text='Lista de ensaio deletada')
-    else:
-        bot.reply_to(message=msg, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
 
 
 bot.polling(timeout=60, none_stop=True)

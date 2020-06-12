@@ -30,7 +30,6 @@ class ListaEnsaio:
         try:
             ritmista = {'nome': nome, 'instrumento': instrumento}
 
-            print(f'Pesquisando {ritmista} em {self.lista}')
             if len(self.lista) == 0:
                 self.lista.append(ritmista)
                 self.num_pessoas += 1
