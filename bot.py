@@ -29,11 +29,6 @@ def list_exists(msg):
         return True
 
 
-@bot.message_handler(commands=['listas'])
-def send_lists(msg):
-    print(listas_de_ensaio)
-
-
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(msg):
     bot.send_message(chat_id=msg.chat.id, text='Para criar um novo ensaio, envie /ensaio seguido de uma descrição.\n\n'
