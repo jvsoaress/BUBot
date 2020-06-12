@@ -26,19 +26,31 @@ def send_welcome(msg):
 
 @bot.message_handler(commands=['ensaio'])
 def novo_ensaio(msg):
+    chat_id = msg.chat.id
+    # checa se o id já existe no banco de dados
+    # se não existir, adiciona
+    with open('chatlist.txt', 'a+') as chatlist:
+        chatlist.seek(0)
+        leitor = chatlist.read()
+        ids = leitor.split('\n')
+        if str(chat_id) not in ids:
+            chatlist.write(str(chat_id) + '\n')
+            print(f'Novo Chat ID adicionado: {chat_id}')
+
     global lista_ensaio
+    # se não houver uma lista criada, crie uma
     if not lista_ensaio:
         descricao = msg.text[8:]
         data = datetime.now(tz=timezone('Brazil/East'))
 
-        lista_ensaio = ListaEnsaio(descricao, data)
+        lista_ensaio = ListaEnsaio(chat_id, descricao, data)
 
-        bot.send_message(chat_id=msg.chat.id,
+        bot.send_message(chat_id=chat_id,
                          text=f'{lista_ensaio.cabecalho}\n',
                          reply_markup=respostas,
                          parse_mode='HTML')
 
-        print(f'Nova lista criada em {data}')
+        print(f'Nova lista criada (Data: {data} | Chat ID: {chat_id})')
     else:
         bot.send_message(chat_id=msg.chat.id,
                          text='Lista já existente. Para excluir a lista existente, digite /limpar')

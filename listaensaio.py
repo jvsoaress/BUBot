@@ -1,5 +1,6 @@
 class ListaEnsaio:
-    def __init__(self, descricao, data):
+    def __init__(self, chat_id, descricao, data):
+        self.chat_id = chat_id
         self.lista = list()
         self.descricao = descricao
         self.data = data
