@@ -39,13 +39,11 @@ class ListaEnsaio:
                 for linha in self.lista:
                     if ritmista['nome'] in linha['nome']:
                         print(f'{ritmista["nome"]} já está na lista')
-                        break
-                    else:
-                        self.lista.append(ritmista)
-                        self.num_pessoas += 1
-                        self.instrumentos[instrumento] += 1
-                        print(f'{ritmista["nome"]} adicionado')
-                        break
+                        return self.to_string()
+                self.lista.append(ritmista)
+                self.num_pessoas += 1
+                self.instrumentos[instrumento] += 1
+                print(f'{ritmista["nome"]} adicionado')
         except Exception:
             pass
         return self.to_string()

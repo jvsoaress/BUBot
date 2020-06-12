@@ -48,13 +48,9 @@ def novo_ensaio(msg):
             chatlist.write(str(chat_id) + '\n')
             print(f'Novo Chat ID adicionado: {chat_id}')
 
-    global listas_de_ensaio
     # se não houver uma lista criada, crie uma
     if chat_id not in listas_de_ensaio:
-        if 'FarmatuqueBot' not in msg.text:
-            descricao = msg.text[8:]
-        else:
-            descricao = ''
+        descricao = msg.text[8:]
         data = datetime.now(tz=timezone('Brazil/East'))
 
         # adiciona um objeto de ListaEnsaio ao dicionário de listas de ensaio
