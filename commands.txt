@@ -1,5 +1,5 @@
 ensaio - Cria uma nova lista de ensaio
 infos - Recebe informações de uma lista de ensaio
-deletar - Exclui uma lista de ensaio existente
+limpar - Exclui uma lista de ensaio existente
 amanha - Altera a data do ensaio em +1 dia
 ontem - Altera a data do ensaio em -1 dia

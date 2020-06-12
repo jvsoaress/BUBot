@@ -27,7 +27,7 @@ def send_welcome(msg):
 @bot.message_handler(commands=['ensaio'])
 def novo_ensaio(msg):
     global lista_ensaio
-    if not isinstance(lista_ensaio, ListaEnsaio):
+    if not lista_ensaio:
         descricao = msg.text[8:]
         data = datetime.now(tz=timezone('Brazil/East'))
 
@@ -38,10 +38,10 @@ def novo_ensaio(msg):
                          reply_markup=respostas,
                          parse_mode='HTML')
 
-        print(f'Novo ensaio criado em {data}')
+        print(f'Nova lista criada em {data}')
     else:
         bot.send_message(chat_id=msg.chat.id,
-                         text='Lista já existente. Para excluir uma lista, digite /deletar')
+                         text='Lista já existente. Para excluir a lista existente, digite /limpar')
 
 
 @bot.callback_query_handler(func=lambda call: call.data in ['vou', 'naovou', 'atraso', 'estou'])
@@ -84,7 +84,7 @@ def set_instrument(call):
 
 @bot.message_handler(commands=['infos'])
 def send_list_infos(msg):
-    if isinstance(lista_ensaio, ListaEnsaio):
+    if lista_ensaio:
         print(f'{msg.from_user.first_name} pediu informações da lista')
         infos = lista_ensaio.infos()
         bot.reply_to(message=msg, text=infos, parse_mode='HTML')
@@ -115,18 +115,13 @@ def change_date(msg):
             print(f'{msg.from_user.first_name} alterou a data do ensaio')
 
 
-@bot.message_handler(commands=['deletar'])
-def delete_list(msg):
+@bot.message_handler(commands=['limpar'])
+def delete_lists(msg):
     global lista_ensaio
     if lista_ensaio:
-        try:
-            message_id = msg.reply_to_message.message_id
-        except AttributeError:
-            bot.reply_to(message=msg, text='Responda à mensagem contendo a lista que deseja deletar')
-        else:
-            bot.delete_message(chat_id=msg.chat.id, message_id=message_id)
-            bot.reply_to(message=msg, text='Lista de ensaio deletada')
-            lista_ensaio = None
+        print(f'A lista de ensaio criada em {lista_ensaio.data} foi deletada')
+        lista_ensaio = None
+        bot.reply_to(message=msg, text='Lista de ensaio deletada')
     else:
         bot.reply_to(message=msg, text='Não existe nenhuma lista de ensaio. Crie uma nova com /ensaio')
 
